@@ -1,0 +1,103 @@
+{
+  "_args": [
+    [
+      "aglio-theme-attributable",
+      ""
+    ]
+  ],
+  "_from": "aglio-theme-attributable@latest",
+  "_id": "aglio-theme-attributable@1.4.5",
+  "_inCache": true,
+  "_installable": true,
+  "_location": "/aglio-theme-attributable",
+  "_nodeVersion": "0.12.7",
+  "_npmOperationalInternal": {
+    "host": "packages-6-west.internal.npmjs.com",
+    "tmp": "tmp/aglio-theme-attributable-1.4.5.tgz_1454537721182_0.37704811547882855"
+  },
+  "_npmUser": {
+    "email": "joseph.delcioppio@gmail.com",
+    "name": "thedelchop"
+  },
+  "_npmVersion": "2.11.3",
+  "_phantomChildren": {},
+  "_requested": {
+    "name": "aglio-theme-attributable",
+    "raw": "aglio-theme-attributable",
+    "rawSpec": "",
+    "scope": null,
+    "spec": "latest",
+    "type": "tag"
+  },
+  "_requiredBy": [
+    "#USER"
+  ],
+  "_resolved": "https://registry.npmjs.org/aglio-theme-attributable/-/aglio-theme-attributable-1.4.5.tgz",
+  "_shasum": "ac4aa37b70bda6d9589518c9a471d144d714e472",
+  "_shrinkwrap": null,
+  "_spec": "aglio-theme-attributable",
+  "_where": "",
+  "author": {
+    "name": "Joseph C. DelCioppio"
+  },
+  "bugs": {
+    "url": "https://github.com/gothamtechlabs/aglio-theme-attributable/issues"
+  },
+  "dependencies": {
+    "coffee-script": "^1.8.0",
+    "highlight.js": "^8.4.0",
+    "jade": "^1.8.2",
+    "less": "^2.1.2",
+    "markdown-it": "^4.3.0",
+    "markdown-it-anchor": "^2.1.0",
+    "markdown-it-checkbox": "^1.1.0",
+    "markdown-it-container": "^1.0.0",
+    "markdown-it-emoji": "^1.0.0",
+    "moment": "^2.8.4",
+    "stylus": "^0.51.1"
+  },
+  "description": "Aglio theme to render attributes as well",
+  "devDependencies": {
+    "mocha": "^2.1.0"
+  },
+  "directories": {},
+  "dist": {
+    "shasum": "ac4aa37b70bda6d9589518c9a471d144d714e472",
+    "tarball": "https://registry.npmjs.org/aglio-theme-attributable/-/aglio-theme-attributable-1.4.5.tgz"
+  },
+  "gitHead": "18ac06821f7fa0d6e3dd925e345ff410399fd699",
+  "homepage": "https://github.com/gothamtechlabs/aglio-theme-attributable",
+  "keywords": [
+    "algio",
+    "theme",
+    "api",
+    "blueprint"
+  ],
+  "license": "MIT",
+  "main": "lib/main.js",
+  "maintainers": [
+    {
+      "email": "joseph.delcioppio@gmail.com",
+      "name": "thedelchop"
+    }
+  ],
+  "name": "aglio-theme-attributable",
+  "optionalDependencies": {},
+  "readme": "ERROR: No README data found!",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gothamtechlabs/aglio-theme-attributable.git"
+  },
+  "scripts": {
+    "build": "coffee -o lib -c src",
+    "coverage": "istanbul cover -x cache/*.js _mocha -- --compilers coffee:coffee-script/register -R spec",
+    "coveralls": "coveralls <coverage/lcov.info",
+    "postinstall": "node scripts/setup-cache.js",
+    "precoverage": "npm run build",
+    "precoveralls": "npm run coverage",
+    "prepublish": "npm run build",
+    "pretest": "npm run build",
+    "test": "mocha --compilers coffee:coffee-script/register"
+  },
+  "version": "1.4.5"
+}
