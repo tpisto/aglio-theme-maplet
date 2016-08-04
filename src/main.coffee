@@ -421,8 +421,6 @@ decorate = (api, md, slugCache, verbose) ->
                     if dataStructure.element is 'dataStructure'
                       try
                         action.requestAttributes = renderAttributes(dataStructure.content[0], dataStructures).properties
-                        console.log JSON.stringify(action.requestAttributes, null, 2)
-                        console.log '****************************'
                       catch err
                         if verbose
                           console.log(dataStructure.content[0])
