@@ -1,19 +1,19 @@
 {
   "_args": [
     [
-      "aglio-theme-attributable",
+      "aglio-theme-maplet",
       ""
     ]
   ],
-  "_from": "aglio-theme-attributable@latest",
-  "_id": "aglio-theme-attributable@1.4.5",
+  "_from": "aglio-theme-maplet@latest",
+  "_id": "aglio-theme-maplet@1.4.5",
   "_inCache": true,
   "_installable": true,
-  "_location": "/aglio-theme-attributable",
+  "_location": "/aglio-theme-maplet",
   "_nodeVersion": "0.12.7",
   "_npmOperationalInternal": {
     "host": "packages-6-west.internal.npmjs.com",
-    "tmp": "tmp/aglio-theme-attributable-1.4.5.tgz_1454537721182_0.37704811547882855"
+    "tmp": "tmp/aglio-theme-maplet-1.4.5.tgz_1454537721182_0.37704811547882855"
   },
   "_npmUser": {
     "email": "joseph.delcioppio@gmail.com",
@@ -22,8 +22,8 @@
   "_npmVersion": "2.11.3",
   "_phantomChildren": {},
   "_requested": {
-    "name": "aglio-theme-attributable",
-    "raw": "aglio-theme-attributable",
+    "name": "aglio-theme-maplet",
+    "raw": "aglio-theme-maplet",
     "rawSpec": "",
     "scope": null,
     "spec": "latest",
@@ -32,16 +32,16 @@
   "_requiredBy": [
     "#USER"
   ],
-  "_resolved": "https://registry.npmjs.org/aglio-theme-attributable/-/aglio-theme-attributable-1.4.5.tgz",
+  "_resolved": "https://registry.npmjs.org/aglio-theme-maplet/-/aglio-theme-maplet-1.4.5.tgz",
   "_shasum": "ac4aa37b70bda6d9589518c9a471d144d714e472",
   "_shrinkwrap": null,
-  "_spec": "aglio-theme-attributable",
+  "_spec": "aglio-theme-maplet",
   "_where": "",
   "author": {
     "name": "Joseph C. DelCioppio"
   },
   "bugs": {
-    "url": "https://github.com/gothamtechlabs/aglio-theme-attributable/issues"
+    "url": "https://github.com/tpisto/aglio-theme-maplet/issues"
   },
   "dependencies": {
     "coffee-script": "^1.8.0",
@@ -63,10 +63,10 @@
   "directories": {},
   "dist": {
     "shasum": "ac4aa37b70bda6d9589518c9a471d144d714e472",
-    "tarball": "https://registry.npmjs.org/aglio-theme-attributable/-/aglio-theme-attributable-1.4.5.tgz"
+    "tarball": "https://registry.npmjs.org/aglio-theme-maplet/-/aglio-theme-maplet-1.4.5.tgz"
   },
   "gitHead": "18ac06821f7fa0d6e3dd925e345ff410399fd699",
-  "homepage": "https://github.com/gothamtechlabs/aglio-theme-attributable",
+  "homepage": "https://github.com/tpisto/aglio-theme-maplet",
   "keywords": [
     "algio",
     "theme",
@@ -81,12 +81,12 @@
       "name": "thedelchop"
     }
   ],
-  "name": "aglio-theme-attributable",
+  "name": "aglio-theme-maplet",
   "optionalDependencies": {},
   "readme": "ERROR: No README data found!",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/gothamtechlabs/aglio-theme-attributable.git"
+    "url": "git+https://github.com/tpisto/aglio-theme-maplet.git"
   },
   "scripts": {
     "build": "coffee -o lib -c src",
