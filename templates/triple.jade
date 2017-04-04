@@ -6,20 +6,14 @@ html
     head
         meta(charset="utf-8")
         title= self.api.name || 'API Documentation'
-        link(rel="stylesheet", href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css")
-        link(rel="stylesheet", href="https://cloud.typography.com/7769332/6090952/css/fonts.css")
+        //- For EV
+        script(type="text/javascript", src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js")
         style!= self.css
     body.preload
     
-        div.top-bar
-          img.logo(src='http://maplet.com/img/maplet-horiz-logo.png')
-          div.goto
-            span Go to: &nbsp;
-            a(href="https://my.maplet.com", target="_blank") Login screen
-            span &nbsp;&nbsp;|&nbsp;&nbsp;
-            a(href="http://maplet.com", target="_blank") Maplet.com
         #nav-background
         div.container-fluid.triple
+            img.logo(src='../images/og-3-color-logo_trsp.png')
             .row
                 block nav
                     +Nav()
@@ -40,3 +34,11 @@ html
                 socket.on('reconnect', function () {
                     socket.emit('request-refresh');
                 });
+        script.
+            (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+            })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+            ga('create', 'UA-93257753-1', 'auto');
+            ga('send', 'pageview');
