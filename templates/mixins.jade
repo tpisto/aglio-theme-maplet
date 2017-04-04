@@ -1,4 +1,3 @@
-
 mixin Badge(method)
     //- Draw a badge for a given HTTP method
     case method
@@ -234,8 +233,10 @@ mixin ContentTriple()
                             span.method(class=action.methodLower)= action.method
                             | &nbsp;
                             span.uri
-                              span.hostname= self.api.host
+                              span.hostname= ''
+                              != action.getResourceHost
                               != action.colorizedUriTemplate
+                              
                         .tabs
                             if action.hasRequest
                                 .example-names
