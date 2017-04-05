@@ -134,7 +134,7 @@ mixin RequestResponseBody(request, collapse, showBlank)
                         if index < request.headers.length - 1
                           br
                 div(style="height: 1px;")
-                
+
             if request.body
                 h5 Body
                 pre: code
@@ -309,15 +309,12 @@ mixin ContentTriple()
                                             p!= self.markdown(attribute.description)
                                           else 
                                             p
-                                            
+                                           
+                                      // this is ugly - should loop through paramaters till no more found
+                                      // auto alternatme sytles of indented content 
                                       if attribute.properties.length
                                         .parameter.nested
                                           .title
-                                            .collapse-button
-                                              span.close Hide child attributes
-                                              span.open Show child attributes
-                                          .collapse-content
-                                            dl.inner
                                               each property in attribute.properties || []
                                                 .dl-row
                                                   .dl-row__content
@@ -329,6 +326,36 @@ mixin ContentTriple()
                                                         p!= self.markdown(property.description)
                                                       else 
                                                         p
+                                                  if property.properties.length
+                                                    .parameter.nested
+                                                      .title
+                                                        each property_sub2 in property.properties || []
+                                                          .dl-row
+                                                            .dl-row__content
+                                                              dt
+                                                                .parameter-name= property_sub2.name
+                                                                .parameter-meta= property_sub2.type
+                                                              dd
+                                                                if property_sub2.description
+                                                                  p!= self.markdown(property_sub2.description)
+                                                                else 
+                                                                  p
+                                                          if property_sub2.properties.length
+                                                        
+                                                            .title
+                                                              each property_sub3 in property_sub2.properties || []
+                                                                .dl-row
+                                                                  .dl-row__content
+                                                                    dt
+                                                                      .parameter-name= property_sub3.name
+                                                                      .parameter-meta= property_sub3.type
+                                                                    dd
+                                                                      if property_sub3.description
+                                                                        p!= self.markdown(property_sub3.description)
+                                                                      else 
+                                                                        p
+
+
                                         
   
                           if action.responseAttributes.length
