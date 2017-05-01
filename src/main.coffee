@@ -344,9 +344,8 @@ decorate = (api, md, slugCache, verbose) ->
     api.navItems = slugCache._nav
     slugCache._nav = []
 
-  for meta in api.metadata or []
-    if meta.name is 'HOST'
-      api.host = meta.value
+  #replace with coffee version of host to object
+  
 
   for resourceGroup in api.resourceGroups or []
     # Element ID and link

@@ -1,4 +1,3 @@
-
 mixin Badge(method)
     //- Draw a badge for a given HTTP method
     case method
@@ -69,44 +68,12 @@ mixin Parameters(params)
             .dl-row__content
               dt
                 .parameter-name= self.urldec(param.name)
-                .parameter-meta= param.type
+                if [param].required
+                  .parameter-meta= param.type  + ' (required)'
+                else
+                  .parameter-meta= param.type + ' (optional)'
               dd
                 != self.markdown(param.description)
-
-    //- //- Draw a definition list of parameter names, types, defaults,
-    //- //- examples and descriptions.
-    //- .title
-    //-     strong URI Parameters
-    //-     .collapse-button.show
-    //-         span.close Hide
-    //-         span.open Show
-    //- .collapse-content
-    //-     dl.inner: each param in params || []
-    //-         dt= self.urldec(param.name)
-    //-         dd
-    //-             code= param.type || 'string'
-    //-             | &nbsp;
-    //-             if param.required
-    //-                 span.required (required)
-    //-             else
-    //-                 span (optional)
-    //-             | &nbsp;
-    //-             if param.default
-    //-                 span.text-info.default
-    //-                     strong Default:&nbsp;
-    //-                     span= param.default
-    //-                 | &nbsp;
-    //-             if param.example
-    //-                 span.text-muted.example
-    //-                     strong Example:&nbsp;
-    //-                     span= param.example
-    //-             != self.markdown(param.description)
-    //-             if param.values.length
-    //-                 p.choices
-    //-                     strong Choices:&nbsp;
-    //-                     each value in param.values
-    //-                         code= self.urldec(value.value)
-    //-                         = ' '
 
 mixin RequestResponse(title, request, collapse)
     .title
@@ -127,6 +94,15 @@ mixin RequestResponseBody(request, collapse, showBlank)
             if request.description
                 .description!= self.markdown(request.description)
 
+            if Object.keys(request.headers).length
+                h5 Headers
+                pre: code
+                    each item, index in request.headers
+                        != self.highlight(item.name + ': ' + item.value, 'http')
+                        if index < request.headers.length - 1
+                          br
+                div(style="height: 1px;")
+
             if request.body
                 h5 Body
                 pre: code
@@ -143,66 +119,7 @@ mixin Examples(resourceGroup, resource, action)
             +RequestResponse('Request', request, true)
         each response in example.responses
             +RequestResponse('Response', response, true)
-//- 
-//- mixin Content()
-//-     //- Page header and API description
-//-     header
-//-         h1#top!= self.api.name || 'API Documentation'
-//- 
-//-     if self.api.descriptionHtml
-//-         != self.api.descriptionHtml
-//- 
-//-     //- Loop through and display information about all the resource
-//-     //- groups, resources, and actions.
-//-     each resourceGroup in self.api.resourceGroups || []
-//-         section.resource-group(id=resourceGroup.elementId)
-//-             h2.group-heading
-//-                 != resourceGroup.name || 'Resource Group!!!'
-//-                 = " "
-//-                 a.permalink(href=resourceGroup.elementLink) &para;
-//-             if resourceGroup.descriptionHtml
-//-                 != resourceGroup.descriptionHtml
-//- 
-//-             each resource in resourceGroup.resources || []
-//-                 .resource(id=resource.elementId)
-//-                     h3.resource-heading
-//-                         != resource.name || ((resource.actions[0] != null) && resource.actions[0].name) || 'Resource'
-//-                         = " "
-//-                         a.permalink(href=resource.elementLink) &nbsp;&para;
-//-                     if resource.description
-//-                         != self.markdown(resource.description)
-//- 
-//-                     each action in resource.actions || []
-//-                     
-//-                         h1 'ABC'
-//-                         
-//-                         .action(class=action.methodLower, id=action.elementId)
-//-                             h4.action-heading
-//-                                 .name!= action.name
-//-                                 a.method(class=action.methodLower, href=action.elementLink)
-//-                                     = action.method
-//-                                 code.uri= self.urldec(action.uriTemplate)
-//-                             if action.description
-//-                                 != self.markdown(action.description)
-//- 
-//-                             h4 Example URI
-//-                             .definition
-//-                                 span.method(class=action.methodLower)= action.method
-//-                                 | &nbsp;
-//-                                 span.uri
-//-                                   span.hostname= self.api.host
-//-                                   != action.colorizedUriTemplate
-//- 
-//-                             //- A list of sub-sections for parameters, requests
-//-                             //- and responses.
-//-                             if action.parameters.length
-//-                                 +Parameters(action.parameters)
-//-                             if action.examples
-//-                                 +Examples(resourceGroup, resource, action)
-//-                         
-//-                             if action.requestAttributes
-//-                               each attribute in action.requestAttributes || []
-//-                                 h1= attribute.type
+
                         
 mixin ContentTriple()
     .right
@@ -234,8 +151,10 @@ mixin ContentTriple()
                             span.method(class=action.methodLower)= action.method
                             | &nbsp;
                             span.uri
-                              span.hostname= self.api.host
+                              span.hostname= ''
+                              != action.getResourceHost
                               != action.colorizedUriTemplate
+                              
                         .tabs
                             if action.hasRequest
                                 .example-names
@@ -293,32 +212,71 @@ mixin ContentTriple()
                                       .dl-row__content
                                         dt
                                           .parameter-name= attribute.name
-                                          .parameter-meta= attribute.type
+                                          if attribute.required
+                                            .parameter-meta= attribute.type  + ' (required)'
+                                          else
+                                            .parameter-meta= attribute.type + ' (optional)'
                                         dd
                                           if attribute.description
                                             p!= self.markdown(attribute.description)
                                           else 
                                             p
-                                            
+                                           
+                                      // this is ugly - should loop through paramaters till no more found
+                                      // auto alternatme sytles of indented content 
                                       if attribute.properties.length
                                         .parameter.nested
                                           .title
-                                            .collapse-button
-                                              span.close Hide child attributes
-                                              span.open Show child attributes
-                                          .collapse-content
-                                            dl.inner
                                               each property in attribute.properties || []
                                                 .dl-row
                                                   .dl-row__content
                                                     dt
                                                       .parameter-name= property.name
-                                                      .parameter-meta= property.type
+                                                      if [property].required
+                                                        .parameter-meta= property.type  + ' (required)'
+                                                      else
+                                                        .parameter-meta= property.type + ' (optional)'
                                                     dd
                                                       if property.description
                                                         p!= self.markdown(property.description)
                                                       else 
                                                         p
+                                                  if property.properties.length
+                                                    .parameter.nested
+                                                      .title
+                                                        each property_sub2 in property.properties || []
+                                                          .dl-row
+                                                            .dl-row__content
+                                                              dt
+                                                                .parameter-name= property_sub2.name
+                                                                if [property_sub2].required
+                                                                  .parameter-meta= property_sub2.type  + ' (required)'
+                                                                else
+                                                                  .parameter-meta= property_sub2.type + ' (optional)'
+                                                              dd
+                                                                if property_sub2.description
+                                                                  p!= self.markdown(property_sub2.description)
+                                                                else 
+                                                                  p
+                                                          if property_sub2.properties.length
+                                                        
+                                                            .title
+                                                              each property_sub3 in property_sub2.properties || []
+                                                                .dl-row
+                                                                  .dl-row__content
+                                                                    dt
+                                                                      .parameter-name= property_sub3.name
+                                                                      if [property_sub3].required
+                                                                        .parameter-meta= property_sub3.type  + ' (required)'
+                                                                      else
+                                                                        .parameter-meta= property_sub3.type + ' (optional)'
+                                                                    dd
+                                                                      if property_sub3.description
+                                                                        p!= self.markdown(property_sub3.description)
+                                                                      else 
+                                                                        p
+
+
                                         
   
                           if action.responseAttributes.length

@@ -1,7 +1,6 @@
 /* eslint-env browser */
 /* eslint quotes: [2, "single"] */
 'use strict';
-
 /*
   Determine if a string ends with another string.
 */
@@ -138,39 +137,17 @@ function refresh(body) {
   collapses them.
 */
 function autoCollapse() {
-  var windowHeight = getWindowDimensions()[1];
-  var itemsHeight = 64; /* Account for some padding */
-  var itemsArray = Array.prototype.slice.call(
+    var windowHeight = getWindowDimensions()[1];
+    var itemsHeight = 64; /* Account for some padding */
+    var itemsArray = Array.prototype.slice.call(
     document.querySelectorAll('nav .resource-group .heading'));
 
-  // Get the total height of the navigation items
-  itemsArray.forEach(function (item) {
-    itemsHeight += item.parentNode.offsetHeight;
-  });
-
-  // Should we auto-collapse any nav items? Try to find the smallest item
-  // that can be collapsed to show all items on the screen. If not possible,
-  // then collapse the largest item and do it again. First, sort the items
-  // by height from smallest to largest.
-  var sortedItems = itemsArray.sort(function (a, b) {
-    return a.parentNode.offsetHeight - b.parentNode.offsetHeight;
-  });
-
-  while (sortedItems.length && itemsHeight > windowHeight) {
-    for (var i = 0; i < sortedItems.length; i++) {
-      // Will collapsing this item help?
-      var itemHeight = sortedItems[i].nextSibling.offsetHeight;
-      if ((itemsHeight - itemHeight <= windowHeight) || i === sortedItems.length - 1) {
-        // It will, so let's collapse it, remove its content height from
-        // our total and then remove it from our list of candidates
-        // that can be collapsed.
-        itemsHeight -= itemHeight;
-        toggleCollapseNav({target: sortedItems[i].children[0]}, true);
-        sortedItems.splice(i, 1);
-        break;
-      }
+    for (var i = 0; i < itemsArray.length; i++) {
+        // collapse all but getting started section
+        if (i > 0) {
+            toggleCollapseNav({target: itemsArray[i].children[0]}, true);
+        }
     }
-  }
 }
 
 /*
@@ -216,8 +193,73 @@ function init() {
 // Initial call to set up buttons
 init();
 
+function createCookie(name,value,days) {
+    var expires = "";
+    if (days) {
+        var date = new Date();
+        date.setTime(date.getTime() + (days*24*60*60*1000));
+        expires = "; expires=" + date.toUTCString();
+    }
+    document.cookie = name + "=" + value + expires + "; path=/";
+}
+
+function readCookie(name) {
+    var nameEQ = name + "=";
+    var ca = document.cookie.split(';');
+    for(var i=0;i < ca.length;i++) {
+        var c = ca[i];
+        while (c.charAt(0)==' ') c = c.substring(1,c.length);
+        if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+    }
+    return null;
+}
+
+function eraseCookie(name) {
+    createCookie(name,"",-1);
+}
+
+
+function checkLaunchSurveyIntercept(){
+    var dont_intercept = readCookie("og_dont_intercept");
+    if (dont_intercept != 1) {
+        // launch modal after 1 minute        
+        setTimeout(function(){
+            var right_panel_width = $('#right-panel-background').width();
+            // set modal width to 80% of right most panel
+            var intercept_width = parseInt(right_panel_width * .8);
+            // center in panel making up for scrollbar and margins
+            var intercept_margin = right_panel_width - ((right_panel_width -  intercept_width)/2) + 25;
+            
+            var survey_intercept = "<div id='survey_intercept' " +
+                "style='width:" + intercept_width + "px;margin-left:-" + intercept_margin + "px;'>" +
+                "<div id='survey_intercept_close_div'>" +
+                "<a href='#' id='survey_intercept_close' class='modal_link'>close</a>"+
+                "</div>" +
+                "Thanks for checking out our new API documentation! We would love your feedback. Help us improve by taking this 2 minute " +
+                "<a href='http://sgiz.mobi/s3/API-Documentation' id='survey_link' class='modal_link' target='_blank' id='og_survey'>survey</a>." +
+                "</div>";
+            $('body').prepend(survey_intercept);
+            $('#survey_intercept').fadeIn();
+        }, 60000)
+    }
+}
+
 window.onload = function () {
     autoCollapse();
     // Remove the `preload` class to enable animations
     document.querySelector('body').className = '';
 };
+
+
+$( document ).ready(function() {
+    checkLaunchSurveyIntercept(); 
+    // close survey intercept modal
+    $('body').on('click', '#survey_intercept_close', function(){
+       $('#survey_intercept').fadeOut(); 
+    }) 
+    // if they click the suvey link don't intercept again
+    $('body').on('click', '#survey_link', function(){
+       createCookie("og_dont_intercept",1,365)
+       $('#survey_intercept').fadeOut();    
+    })
+});

@@ -1,18 +1,18 @@
-# Aglio Default Theme
+# Aglio Lego Theme
 
 [![Dependency Status](https://img.shields.io/david/danielgtaylor/aglio/olio-theme.svg)](https://david-dm.org/danielgtaylor/aglio) [![Build Status](http://img.shields.io/travis/danielgtaylor/aglio/olio-theme.svg)](https://travis-ci.org/danielgtaylor/aglio) [![Coverage Status](http://img.shields.io/coveralls/danielgtaylor/aglio/olio-theme.svg)](https://coveralls.io/r/danielgtaylor/aglio) [![NPM version](http://img.shields.io/npm/v/aglio-theme-olio.svg)](https://www.npmjs.org/package/aglio-theme-olio) [![License](http://img.shields.io/npm/l/aglio-theme-olio.svg)](https://www.npmjs.org/package/aglio-theme-olio)
 
-This is *Olio*, the default theme engine for [Aglio](https://github.com/danielgtaylor/aglio). It takes an [API Blueprint](http://apiblueprint.org/) AST and renders it into static HTML. Example use:
+This is *Lego*, a new theme for [Aglio](https://github.com/danielgtaylor/aglio). It takes an [API Blueprint](http://apiblueprint.org/) AST and renders it into static HTML. Example use:
 
 ```bash
-$ sudo npm install -g aglio
+$ sudo npm install -g ordergroove/aglio-theme-lego
 $ aglio -i blueprint.apib -o MyAPI.html
 ```
 
 Theme engines for Aglio are described in more detail in the [Aglio documentation](https://github.com/danielgtaylor/aglio#customizing-output).
 
 ## Design Philosophy
-Olio is designed from the ground up to be both **fast** and **extensible** while maintaining backward compatibility with most of the original Aglio theme. It uses the following technologies:
+Olio (and thus lego) is designed from the ground up to be both **fast** and **extensible** while maintaining backward compatibility with most of the original Aglio theme. It uses the following technologies:
 
 * [Less](http://lesscss.org/) to produce CSS
 * [Markdown-it](https://github.com/markdown-it/markdown-it#readme) to render Markdown
@@ -23,7 +23,7 @@ For backward compatibility, Jade templates can continue to use inline Stylus and
 
 ## Theme Options
 
-Olio comes with a handful of configurable theme options. These are set via the `--theme-XXX` parameter, where `XXX` is one of the following:
+Olio (and lego) comes with a handful of configurable theme options. These are set via the `--theme-XXX` parameter, where `XXX` is one of the following:
 
 Name           | Description
 -------------- | ------------------
@@ -37,7 +37,7 @@ Name           | Description
 
 ## Benchmark
 
-Olio makes use of aggressive caching whenever it can, which means that rendering HTML can be blazing fast. Benchmark taken on a 2015 Macbook Pro via `BENCHMARK=1 aglio -i example.apib -o example.html`:
+Olio (and lego) makes use of aggressive caching whenever it can, which means that rendering HTML can be blazing fast. Benchmark taken on a 2015 Macbook Pro via `BENCHMARK=1 aglio -i example.apib -o example.html`:
 
 Step                | Cached | No cache
 ------------------- | ------:| --------:
