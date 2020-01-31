@@ -696,6 +696,37 @@ getActions = (resourceElement, slugCache, parentId) ->
 
   return actions
 
+getDefaultResourceGroup = (parseResult, slugCache) ->
+  [result] = query parseResult, {
+    element: 'category',
+    meta: {
+      classes: {
+        content: [
+          {
+            content: 'api'
+          }
+        ]
+      }
+    },
+    content: [
+      {
+        element: 'resource'
+      }
+    ]
+  }
+  resourceElements = (query result, {element: 'resource'} if result) or []
+  resources = getResources resourceElements, slugCache, ''
+  if resources.length > 0
+    return {
+      name: ''
+      elementId: ''
+      elementLink: ''
+      descriptionHtml: ''
+      resources: resources
+    }
+  else
+    return null
+
 decorate = (api, md, slugCache, verbose) ->
   # Decorate an API Blueprint AST with various pieces of information that
   # will be useful for the theme. Anything that would significantly
