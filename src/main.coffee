@@ -750,6 +750,8 @@ decorate = (api, md, slugCache, verbose) ->
   if verbose
     console.log "Known data structures: #{Object.keys(dataStructures)}"
 
+  api.description = getApiDescription api
+
   api.host = getHost api
   api.resourceGroups = getResourceGroups api, slugCache, md
   defaultResourceGroup = getDefaultResourceGroup api, slugCache
