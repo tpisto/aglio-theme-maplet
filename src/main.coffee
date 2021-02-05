@@ -7,7 +7,8 @@ markdownIt = require 'markdown-it'
 moment = require 'moment'
 path = require 'path'
 querystring = require 'querystring'
-
+equal = require 'deep-equal'
+query = require '@gasolwu/refract-query'
 renderExample = require './example'
 renderSchema = require './schema'
 renderAttributes = require './attribute'
@@ -318,6 +319,414 @@ modifyUriTemplate = (templateUri, parameters, colorize) ->
     uri
   , []).join('').replace(/\/+/g, '/').replace(/\/$/, '')
 
+getTitle = (parseResult) ->
+  [category, ...] = query parseResult, {
+    element: 'category',
+    meta: {
+      classes: {
+        content: [
+          {
+            content: 'api'
+          }
+        ]
+      }
+    }
+  }
+  return category?.meta.title?.content or ''
+
+getMetadata = (parseResult) ->
+  [category, ...] = query parseResult, {
+    element: 'category',
+    meta: {
+      classes: {
+        content: [
+          {
+            content: 'api'
+          }
+        ]
+      }
+    }
+  }
+  return ({
+    name: meta.content.key.content
+    value: meta.content.value.content
+  } for meta in category?.attributes?.metadata?.content or [])
+
+getDataStructures = (parseResult) ->
+  results = query parseResult, {
+    element: 'dataStructure',
+    content: {
+      meta: {
+        id: {
+          element: 'string'
+        }
+      }
+    }
+  }
+  return new -> @[result.content.meta.id.content] = result \
+      for result in results; @
+
+getApiDescription = (parseResult) ->
+  [category, ...] = query parseResult, {
+    element: 'category',
+    meta: {
+      classes: {
+        content: [
+          {
+            content: 'api'
+          }
+        ]
+      }
+    },
+  }
+  if category?.content.length > 0
+    content = category.content[0]
+    return content.content if content.element == 'copy'
+  return ''
+
+getHost = (parseResult) ->
+  [category, ...] = query parseResult, {
+    element: 'category',
+    meta: {
+      classes: {
+        content: [
+          {
+            content: 'api'
+          }
+        ]
+      }
+    }
+  }
+
+  [member, ...] = query category?.attributes?.metadata or [], {
+    element: 'member'
+    content: {
+      key: {
+        content: 'HOST'
+      }
+    }
+  }
+  return member?.content.value.content or ''
+
+getResourceGroups = (parseResult, slugCache, md) ->
+  results = query parseResult, {
+    element: 'category',
+    meta: {
+      classes: {
+        content: [
+          {
+            content: 'resourceGroup'
+          }
+        ]
+      }
+    }
+  }
+  return (getResourceGroup result, slugCache, md for result in results)
+
+getResourceGroup = (resourceGroupElement, slugCache, md) ->
+  slugify = slug.bind slug, slugCache
+  title = resourceGroupElement.meta.title.content
+  title_slug = slugify title, true
+  if resourceGroupElement.content.length > 0 and
+      resourceGroupElement.content[0].element == 'copy'
+    description = md.render resourceGroupElement.content[0].content
+
+  resourceGroup = {
+    name: title
+    elementId: title_slug
+    elementLink: "##{title_slug}"
+    descriptionHtml: description or ''
+    resources: []
+  }
+  if description
+    resourceGroup.navItems = slugCache._nav
+    slugCache._nav = []
+
+  resourceElements = query resourceGroupElement, {element: 'resource'}
+  resourceGroup.resources = getResources resourceElements, slugCache,
+    resourceGroup.elementId
+  return resourceGroup
+
+getResources = (resourceElements, slugCache, parentId) ->
+  return (getResource resourceElement, slugCache, parentId \
+    for resourceElement in resourceElements)
+
+getResourceDescription = (resourceElement) ->
+  if resourceElement.content[0]?.element == 'copy'
+    return resourceElement.content[0].content
+  return ''
+
+getResource = (resourceElement, slugCache, parentId) ->
+  slugify = slug.bind slug, slugCache
+  title = resourceElement.meta.title.content
+  title_slug = slugify "#{parentId}-#{title}", true
+  description = getResourceDescription resourceElement
+  resource = {
+    name: title
+    elementId: title_slug
+    elementLink: "##{title_slug}"
+    description: description
+    actions: []
+    uriTemplate: resourceElement.attributes?.href.content || ""
+  }
+  resource.actions = getActions resourceElement, slugCache,
+    "#{parentId}-#{title}-#{resource.name}"
+  return resource
+
+getHeaders = (headersElement) ->
+  return ({
+    name: element.content.key.content
+    value: element.content.value.content
+  } for element in headersElement or [])
+
+getRequest = (requestElement) ->
+  hasRequest = requestElement.meta?.title or \
+    requestElement.content.length > 0
+  name = requestElement.meta?.title.content
+  method = requestElement.attributes.method.content
+
+  [copy] = query requestElement, {element: 'copy'}
+  [schema] = query requestElement, {
+    element: 'asset',
+    meta: {
+      classes: {
+        content: [
+          {
+            content: 'messageBodySchema'
+          }
+        ]
+      }
+    }
+  }
+  [body] = query requestElement, {
+    element: 'asset',
+    meta: {
+      classes: {
+        content: [
+          {
+            content: 'messageBody'
+          }
+        ]
+      }
+    }
+  }
+  headers = getHeaders requestElement.attributes.headers?.content
+
+  return {
+    name: name or ''
+    description: copy?.content or ''
+    schema: schema?.content or ''
+    body: body?.content or ''
+    headers: headers
+    content: []
+    method: method
+    hasContent: copy?.content? or \
+      headers.length > 0 or \
+      body?.content? or \
+      schema?.content?
+  }
+
+getResponse = (responseElement) ->
+  name = responseElement.attributes.statusCode.content
+  [schema] = query responseElement, {
+    element: 'asset',
+    meta: {
+      classes: {
+        content: [
+          {
+            content: 'messageBodySchema'
+          }
+        ]
+      }
+    }
+  }
+  [body] = query responseElement, {
+    element: 'asset',
+    meta: {
+      classes: {
+        content: [
+          {
+            content: 'messageBody'
+          }
+        ]
+      }
+    }
+  }
+  [copy] = query responseElement, {element: 'copy'}
+  headers = getHeaders responseElement.attributes.headers?.content
+
+  return {
+    name: name or ''
+    description: copy?.content or ''
+    headers: headers
+    body: body?.content or ''
+    schema: schema?.content or ''
+    content: []
+    hasContent: copy?.content? or \
+      headers.length > 0 or \
+      body?.content? or \
+      schema?.content?
+  }
+
+isEmptyMessage = (message) ->
+  return message.name? and
+    message.headers.length == 0 and
+    message.description? and
+    message.body? and
+    message.schema? and
+    message.content.length == 0
+
+getExamples = (actionElement) ->
+  example = {
+    name: ''
+    description: ''
+    requests: []
+    responses: []
+  }
+  examples = [example]
+
+  for httpTransaction in query actionElement, {element: 'httpTransaction'}
+    for requestElement in query httpTransaction, {element: 'httpRequest'}
+      request = getRequest requestElement
+      method = request.method
+    for responseElement in query httpTransaction, {element: 'httpResponse'}
+      response = getResponse responseElement
+
+    [..., prevRequest] = example?.requests or []
+    [..., prevResponse] = example?.responses or []
+    sameRequest = equal prevRequest, request
+    sameResponse = equal prevResponse, response
+    if sameRequest
+      if not sameResponse
+        example.responses.push response
+    else
+      if prevRequest
+        example = {
+          name: ''
+          description: ''
+          requests: []
+          responses: []
+        }
+        examples.push example
+      if not isEmptyMessage request
+        example.requests.push request
+      if not sameResponse
+        example.responses.push response
+
+  return examples
+
+getRequestMethod = (actionElement) ->
+  for requestElement in query actionElement, {element: 'httpRequest'}
+    method = requestElement.attributes.method.content
+    return method if method
+  return ''
+
+getParameters = (actionElement, resourceElement) ->
+  parameters = []
+  resourceParams = resourceElement.attributes?.hrefVariables?.content or []
+  actionParams = actionElement.attributes?.hrefVariables?.content or []
+  hrefVariables = resourceParams.concat actionParams
+
+  for hrefVariable in hrefVariables
+    requiredElement = query hrefVariable.attributes.typeAttributes, {
+      content: 'required'
+    }
+
+    valueElement = hrefVariable.content.value
+    switch valueElement.element
+      when 'enum'
+        values = ({value: enumValue.content} for enumValue in \
+          valueElement.attributes.enumerations.content)
+        example = valueElement.content.content
+      else
+        values = []
+        example = valueElement.content
+
+    parameter = {
+      name: hrefVariable.content.key.content
+      description: hrefVariable.meta.description?.content or ''
+      type: hrefVariable.meta.title?.content
+      required: requiredElement.length > 0
+      example: example
+      values: values
+    }
+    parameters.push parameter
+
+  return parameters
+
+getActions = (resourceElement, slugCache, parentId) ->
+  slugify = slug.bind slug, slugCache
+  actions = []
+
+  for actionElement in query resourceElement, {element: 'transition'}
+    title = actionElement.meta.title.content
+    method = getRequestMethod actionElement
+    examples = getExamples actionElement
+    for example in examples
+      hasRequest = example.requests.length > 0
+      break if hasRequest
+
+    [..., copy] = query actionElement, {element: 'copy'}
+    id = slugify "#{parentId}-#{method}",
+      true
+    action = {
+      name: title
+      description: copy?.content
+      elementId: id
+      elementLink: "##{id}"
+      method: method
+      methodLower: method.toLowerCase()
+      hasRequest: hasRequest? or false
+      examples: examples
+    }
+
+    action.parameters = getParameters actionElement, resourceElement
+
+    href = actionElement.attributes?.href or resourceElement.attributes.href \
+      or {}
+    uriTemplate = href.content or ''
+    action.uriTemplate = modifyUriTemplate uriTemplate, action.parameters
+    action.attributes =
+      urlTemplate: action.uriTemplate
+    action.colorizedUriTemplate = modifyUriTemplate uriTemplate,
+      action.parameters,
+      true
+
+    actions.push action
+
+  return actions
+
+getDefaultResourceGroup = (parseResult, slugCache) ->
+  [result] = query parseResult, {
+    element: 'category',
+    meta: {
+      classes: {
+        content: [
+          {
+            content: 'api'
+          }
+        ]
+      }
+    },
+    content: [
+      {
+        element: 'resource'
+      }
+    ]
+  }
+  resourceElements = (query result, {element: 'resource'} if result) or []
+  resources = getResources resourceElements, slugCache, ''
+  if resources.length > 0
+    return {
+      name: ''
+      elementId: ''
+      elementLink: ''
+      descriptionHtml: ''
+      resources: resources
+    }
+  else
+    return null
+
 decorate = (api, md, slugCache, verbose) ->
   # Decorate an API Blueprint AST with various pieces of information that
   # will be useful for the theme. Anything that would significantly
@@ -329,14 +738,23 @@ decorate = (api, md, slugCache, verbose) ->
   # Find data structures. This is a temporary workaround until Drafter is
   # updated to support JSON Schema again.
   # TODO: Remove me when Drafter is released.
-  dataStructures = {}
-  for category in api.content or []
-    for item in category.content or []
-      if item.element is 'dataStructure'
-        dataStructure = item.content[0]
-        dataStructures[dataStructure.meta.id] = dataStructure
+  # dataStructures = {}
+  # for category in api.content or []
+  #   for item in category.content or []
+  #     if item.element is 'dataStructure'
+  #       dataStructure = item.content[0]
+  #       dataStructures[dataStructure.meta.id] = dataStructure
+  api.name = getTitle api
+  api.metadata = getMetadata api
+  dataStructures = getDataStructures api
   if verbose
     console.log "Known data structures: #{Object.keys(dataStructures)}"
+
+  api.description = getApiDescription api
+
+  api.host = getHost api
+  api.resourceGroups = getResourceGroups api, slugCache, md
+  defaultResourceGroup = getDefaultResourceGroup api, slugCache
 
   # API overview description
   if api.description
